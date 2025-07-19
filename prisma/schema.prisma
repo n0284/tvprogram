@@ -1,0 +1,58 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// テーブル定義
+model User {
+  id          String     @id @default(cuid())
+  email       String     @unique
+  name        String?
+  createdAt   DateTime   @default(now())
+
+  keywords    Keyword[]
+  logs        NotificationLog[]
+}
+
+model Keyword {
+  id        String   @id @default(cuid())
+  word      String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Program {
+  id        String   @id @default(cuid())
+  title     String
+  description String?
+  startAt   DateTime
+  endAt     DateTime
+  channel   String
+  genre     String?
+  createdAt DateTime @default(now())
+
+  logs      NotificationLog[]
+}
+
+model NotificationLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+
+  programId String
+  program   Program  @relation(fields: [programId], references: [id])
+
+  notifiedAt DateTime @default(now())
+}
